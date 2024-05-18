@@ -340,11 +340,11 @@ func (pc *PartitionContext) AddApplication(app *objects.Application) error {
 	}
 
 	// set resources based on tags, but only if the queue is dynamic (unmanaged)
-	if queue.IsManaged() {
+	if !queue.IsManaged() {
+		queue.SetResources(app.GetGuaranteedResource(), app.GetMaxResource())
+	} else {
 		log.Log(log.SchedQueue).Warn("Trying to set resources on a queue that is not an unmanaged leaf",
 			zap.String("queueName", queue.QueuePath))
-	} else {
-		queue.SetResources(app.GetGuaranteedResource(), app.GetMaxResource())
 	}
 	// check only for gang request
 	// - make sure the taskgroup request fits in the maximum set for the queue hierarchy
